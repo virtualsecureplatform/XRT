@@ -79,7 +79,17 @@ static void cu_timer(unsigned long data)
 #else
 static void cu_timer(struct timer_list *t)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 16, 0)
+	struct xrt_cu *xcu = timer_container_of(xcu, t, timer);
+#elif defined(RHEL_RELEASE_CODE)
+#if RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 8)
+	struct xrt_cu *xcu = timer_container_of(xcu, t, timer);
+#else
 	struct xrt_cu *xcu = from_timer(xcu, t, timer);
+#endif
+#else
+	struct xrt_cu *xcu = from_timer(xcu, t, timer);
+#endif
 #endif
 
 	xcu_dbg(xcu, "%s tick\n", xcu->info.iname);
@@ -96,7 +106,17 @@ static void cu_stats_timer(unsigned long data)
 #else
 static void cu_stats_timer(struct timer_list *t)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 16, 0)
+	struct xrt_cu *xcu = timer_container_of(xcu, t, stats.stats_timer);
+#elif defined(RHEL_RELEASE_CODE)
+#if RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 8)
+	struct xrt_cu *xcu = timer_container_of(xcu, t, stats.stats_timer);
+#else
 	struct xrt_cu *xcu = from_timer(xcu, t, stats.stats_timer);
+#endif
+#else
+	struct xrt_cu *xcu = from_timer(xcu, t, stats.stats_timer);
+#endif
 #endif
 	unsigned long   flags;
 

@@ -220,7 +220,17 @@ static void zxgq_req_receiver(struct work_struct *work)
 
 static void zxgq_timer(struct timer_list *t)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 16, 0)
+	struct zocl_xgq *zxgq = timer_container_of(zxgq, t, zx_timer);
+#elif defined(RHEL_RELEASE_CODE)
+#if RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 8)
+	struct zocl_xgq *zxgq = timer_container_of(zxgq, t, zx_timer);
+#else
 	struct zocl_xgq *zxgq = from_timer(zxgq, t, zx_timer);
+#endif
+#else
+	struct zocl_xgq *zxgq = from_timer(zxgq, t, zx_timer);
+#endif
 
 	complete(&zxgq->zx_comp);
 	/* We're a periodic timer. */

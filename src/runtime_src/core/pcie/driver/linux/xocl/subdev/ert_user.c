@@ -648,7 +648,17 @@ static void ert_timer(unsigned long data)
 #else
 static void ert_timer(struct timer_list *t)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 16, 0)
+	struct xocl_ert_user *ert_user = timer_container_of(ert_user, t, timer);
+#elif defined(RHEL_RELEASE_CODE)
+#if RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 8)
+	struct xocl_ert_user *ert_user = timer_container_of(ert_user, t, timer);
+#else
 	struct xocl_ert_user *ert_user = from_timer(ert_user, t, timer);
+#endif
+#else
+	struct xocl_ert_user *ert_user = from_timer(ert_user, t, timer);
+#endif
 #endif
 
 	atomic_inc(&ert_user->tick);

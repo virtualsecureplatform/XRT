@@ -658,7 +658,17 @@ static void chan_timer(unsigned long data)
 #else
 static void chan_timer(struct timer_list *t)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 16, 0)
+	struct mailbox_channel *ch = timer_container_of(ch, t, mbc_timer);
+#elif defined(RHEL_RELEASE_CODE)
+#if RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 8)
+	struct mailbox_channel *ch = timer_container_of(ch, t, mbc_timer);
+#else
 	struct mailbox_channel *ch = from_timer(ch, t, mbc_timer);
+#endif
+#else
+	struct mailbox_channel *ch = from_timer(ch, t, mbc_timer);
+#endif
 #endif
 
 	MBX_VERBOSE(ch->mbc_parent, "%s tick", ch_name(ch));
